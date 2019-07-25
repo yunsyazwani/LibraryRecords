@@ -1,0 +1,7 @@
+book 1, author 1, 111, Novel, shelf 1
+book 2, author 2, 222, Comics, shelf 4
+book 3, author 3, 333, Novel, shelf 3
+book 4, author 4, 444, Comics, shelf 2
+book 5, author 5, 555, Novel, shelf 1
+book 6, author 6, 666, Novel, shelf 5
+book 7, author 7, 777, Comics, shelf 2
