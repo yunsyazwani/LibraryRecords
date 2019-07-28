@@ -343,122 +343,77 @@ public class Student {
         }
          
     }
-
-    public static void returnBook(String user){
-        String oriFilepath = "borrow.txt";
-        
-        Scanner book = new Scanner(System.in);
-        System.out.println();
-        System.out.println("-----Return Book------");
-        System.out.println();
-        System.out.print("Book ID to return : ");
-        String bookReturn = book.next();
-        
-        String tempFile = "temp.txt";
-        File oldFile = new File(oriFilepath);
-        File newFile = new File(tempFile);
-        String name = "";
-        String id = "";
-        String bookID = "";
-        String dateReturn = "";
-              
-         //read date return
-        String filepath = "borrow.txt";
-        
-        try {
-            Scanner fileborrow = new Scanner(new File(filepath));
-            
-            while(fileborrow.hasNextLine()){
-                
-                String line = fileborrow.nextLine();
-                String[] split = line.split(",");
-                boolean found = false;
-                
-                if(split[2].trim().equals(bookReturn)){ 
-                    found = true;
-                   
-                }
-                else{
-                    found = false;
-                }
-                
-                if(found == false){
-                    System.out.println();
-                    System.out.println("Name : " + split[0]);
-                    System.out.println("ID : " + split[1]);
-                    System.out.println("Book ID : " + split[2]);
-                    System.out.println("Date Return : " + split[3]);
-                    System.out.println();
-                    
-                     //baca tarikh kalau lambat return, kena bayar berapa, lebih sehari rm1
-                    LocalDate dateMustReturn = LocalDate.parse(split[3].trim());    
-                    LocalDate dateNow = LocalDate.now();
-                    long days = ChronoUnit.DAYS.between(dateNow, dateMustReturn);
-                    System.out.println("Days between: " + days);
-                    double fees = days * 1;
-                    System.out.println("Fees (1 day = RM1): RM " + String.format("%.2f", fees));
-                    System.out.println();
-                    System.out.println("Please pay the fee first. Thank you.");
-                    System.out.println();
-
-
-                    //soalan kluar dah bayar ke belum, kalau dah, proceed delete kat borrow.txt, kalau tak, menu.
-                    Scanner pay = new Scanner(System.in);
-                    System.out.print("Payment have made ? (yes/no) : ");
-                    String payment = pay.next();
-
-                    if("yes".equals(payment)){
-
-                        //delete in borrow.txt
-                        try{
-                            FileWriter fw = new FileWriter(tempFile,true);
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            PrintWriter pw = new PrintWriter(bw);
-                            Scanner scan = new Scanner(new File(oriFilepath));
-                            scan.useDelimiter("[,\n]");
-
-                            while(scan.hasNext()){
-                                name= scan.next();
-                                id = scan.next();
-                                bookID = scan.next();
-                                dateReturn = scan.next();
-
-                                if(!bookID.trim().equals(bookReturn.trim()) ){ //if text found not equal with bookReturn, write in temp.txt
-                                    pw.println(name + ", " + id + ", " + bookID + ", " + dateReturn);
-                                }
-                            }
-                            fileborrow.close();
-                            scan.close();
-                            pw.flush();
-                            pw.close();
-                            oldFile.delete();
-                            File dump = new File(oriFilepath);
-                            newFile.renameTo(dump);
-                            System.out.println("Return completed!");
-                            Menu(user);
-                        }
-                        catch(Exception ex){
-                            ex.printStackTrace();
-                        }
-                    }
-                    else{
-                        Menu(user);
-                    }
-                }
-                else{
-                    System.out.println("Book not borrowed. Please check the Book ID !");
-                    returnBook(user);
-                }
-            }
-           
-           fileborrow.close();
-           
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Student.class.getName()).log(Level.SEVERE, null, ex);
-        }   
-        
-    }
     
+    public static void returnBook(String user){        
+            try {
+                Scanner book = new Scanner(System.in);
+
+                System.out.println();
+                System.out.println("-----Return Book------");
+                System.out.println();
+                System.out.print("Book ID to return : ");
+                String bookReturn = book.next();//input book id
+                File oldFile = new File("borrow.txt");
+                File newFile = new File("temp.txt");
+                FileWriter fw = new FileWriter(newFile,true); //the true will append the new data
+
+                Scanner fileborrow = new Scanner(oldFile);
+                
+                try {
+                    while(fileborrow.hasNextLine()){
+
+                        String line = fileborrow.nextLine();
+                        String[] split = line.split(",");
+                        boolean found = false;
+
+                        if(split[2].trim().equals(bookReturn)){
+                            
+                            System.out.println();
+                            System.out.println("Name : " + split[0]);
+                            System.out.println("ID : " + split[1]);
+                            System.out.println("Book ID : " + split[2]);
+                            System.out.println("Date Return : " + split[3]);
+                            System.out.println();
+                            
+                            //baca tarikh kalau lambat return, kena bayar berapa, lebih sehari rm1
+                            LocalDate dateMustReturn = LocalDate.parse(split[3].trim());    
+                            LocalDate dateNow = LocalDate.now();
+                            long days = ChronoUnit.DAYS.between(dateNow, dateMustReturn);
+                            System.out.println("Days between: " + days);
+                            double fees = days * 1;
+                            System.out.println("Fees (1 day = RM1): RM " + String.format("%.2f", fees));
+                            System.out.println();
+                            System.out.println("Please pay the fee first. Thank you.");
+                            System.out.println();
+
+                            //soalan kluar dah bayar ke belum, kalau dah, proceed delete kat borrow.txt, kalau tak, menu.
+                            Scanner pay = new Scanner(System.in);
+                            System.out.print("Payment have made ? (yes/no) : ");
+                            String payment = pay.next();
+
+                            if("yes".equals(payment)){ continue; }
+                        }
+                        fw.write(split[0] + "," + split[1] + "," + split[2] + "," + split[3]);
+                        fw.write(System.getProperty( "line.separator" ));
+                    }
+
+                    fileborrow.close();
+                    fw.close();
+
+                    //Delete the original, rename new file
+                    if (!oldFile.delete()) { System.out.println("Could not delete file"); }
+                    if (!newFile.renameTo(oldFile)){ System.out.println("Could not rename file"); }
+                        
+                    Menu(user);
+
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(Student.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch (IOException ioe) {
+                System.err.println("IOException: " + ioe.getMessage());
+            }
+        }
+        
     public static void searchBook(String user){
           
         String seachKey ;
